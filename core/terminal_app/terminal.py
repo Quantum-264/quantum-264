@@ -55,9 +55,9 @@ class Terminal:
 
     def draw_header(self):
         """Draw a header at the top of the screen."""
-        write_text_double_buffer(f"Quantum-264 Terminal", COLORS[25], x=self.cursor_x + 150, y=self.cursor_y)
+        write_text_double_buffer(f"Quantum-264 Terminal", COLORS[19], x=self.cursor_x + 150, y=self.cursor_y)
         self.move_cursor_down()
-        write_text_double_buffer(f"Free Memory: {get_free_memory()["total"]} KB", COLORS[21], x=self.cursor_x + 150, y=self.cursor_y)
+        write_text_double_buffer(f"Free Memory: {get_free_memory()["total"]} KB", COLORS[25], x=self.cursor_x + 150, y=self.cursor_y)
         self.move_cursor_down()
         show_colors(x=self.cursor_x + 70, y=self.cursor_y)
         self.move_cursor_down()
@@ -171,19 +171,19 @@ class Terminal:
                 self.clear_screen(False)  # Don't draw prompt after clearing
             elif command == "help":
                 for _ in range(2):
-                    display.set_pen(COLORS[12])
+                    display.set_pen(COLORS[6])
                     display.text("Available commands:", MARGIN_CURSOR, self.cursor_y, WIDTH, 2)
                     display.update()
                 
                 self.move_cursor_down()
                 for i, cmd in enumerate(command_list):
                     for _ in range(2):
-                        display.set_pen(COLORS[11])
+                        display.set_pen(COLORS[4])
                         display.text(f"{cmd["command"]} - {cmd["description"]}", MARGIN_CURSOR, self.cursor_y + (i * LINE_HEIGHT), WIDTH, 2)
                         display.update()
                 self.move_cursor_down(len(command_list))
             elif command == "apps":
-                display.set_pen(COLORS[12])
+                display.set_pen(COLORS[6])
                 display.text("Available applications:", MARGIN_CURSOR, self.cursor_y, WIDTH, 2)
                 apps = get_applications()
                 for i, app in enumerate(apps):
@@ -195,7 +195,7 @@ class Terminal:
                 self.move_cursor_down()
             elif command == "mem":
                 self.move_cursor_down()
-                write_text_double_buffer(f"Free Memory: {get_free_memory()["total"]} KB", COLORS[21], x=self.cursor_x, y=self.cursor_y)
+                write_text_double_buffer(f"Free Memory: {get_free_memory()["total"]} KB", COLORS[25], x=self.cursor_x, y=self.cursor_y)
                 self.move_cursor_down()
 
             else:

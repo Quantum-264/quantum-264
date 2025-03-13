@@ -1,10 +1,6 @@
-import machine
-import time
+import quantum_os
+import apps.terminal as terminal_app
+import apps.i2c_scan_app as i2c_scan_app
 
-from core.terminal_app.terminal import Terminal
-
-# Set up UART (Serial Port)
-uart = machine.UART(0, baudrate=115200, tx=machine.Pin(0), rx=machine.Pin(1))  # Adjust pins if needed
-
-terminal = Terminal(uart)
-terminal.run()
+if __name__ == '__main__':
+    quantum_os.boot(terminal_app.App)

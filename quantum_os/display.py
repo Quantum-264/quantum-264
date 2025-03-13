@@ -1,4 +1,5 @@
 from picovision import PicoVision, PEN_P5
+from quantum_os.constants import *
 
 WIDTH, HEIGHT = 640, 480
 display = PicoVision(PEN_P5, WIDTH, HEIGHT)
@@ -62,3 +63,16 @@ CURSOR_COLOR = COLORS[25]
 TEXT_COLOR = COLORS[3]
 
 
+
+
+def draw_border():
+    """Draw a border around the screen."""
+    
+    for _ in range(2):
+        display.set_pen(BORDER_COLOR)
+        display.rectangle(0, 0, WIDTH, HEIGHT)
+        display.update()
+    for _ in range(2):
+        display.set_pen(BG_COLOR)
+        display.rectangle(BORDER_WIDTH, BORDER_HEIGHT, WIDTH - (BORDER_WIDTH * 2), HEIGHT - (BORDER_HEIGHT * 2))    
+        display.update()
