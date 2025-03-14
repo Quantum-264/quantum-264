@@ -13,7 +13,6 @@ class App:
 
         self.do_get_apps()
 
-        
         self.uart = quantum_os.get_expansion_uart()
 
         self.cursor = {"x": DEFAULT_CURSOR_X, "y": DEFAULT_CURSOR_Y}
@@ -233,21 +232,36 @@ class App:
 
     def run(self):
         self.clear_screen()
+        yield quantum_os.INTENT_FLIP_BUFFER
         while True:
-            self.command = ""
-            # Draw blinking cursor asynchronously (independent of input)
             self.draw_cursor()
-            if self.uart.any():
-                char = self.uart.read(1)  # Read 1 byte
-                if char:
-                    yield from self.draw_text(char.decode("utf-8"))
-                    # print(self.command)
-                    # if self.command == "app0":
-                    #     yield quantum_os.INTENT_REPLACE_APP(
-                    #         self.apps[1]
-                    #     )
-                    #     break
-                    time.sleep(0.01)  # Small delay for smooth input
+            yield quantum_os.INTENT_NO_OP
+
+            pressed_keys = quantum_os.kbd.get_keys()
+            active_modifiers = quantum_os.kbd.get_modifier()
+
+            if active_modifiers or any(pressed_keys):
+                print(f"Modifiers: {active_modifiers}, Keys: {pressed_keys}")
+            
+            
+
+
+        # while True:
+        #     self.command = ""
+        #     # Draw blinking cursor asynchronously (independent of input)
+        #     self.draw_cursor()
+        #     if self.uart.any():
+        #         char = self.uart.read(1)  # Read 1 byte
+        #         if char:
+        #             yield from self.draw_text(char.decode("utf-8"))
+                    
+        #             # print(self.command)
+        #             # if self.command == "app0":
+        #             #     yield quantum_os.INTENT_REPLACE_APP(
+        #             #         self.apps[1]
+        #             #     )
+        #             #     break
+        #             time.sleep(0.01)  # Small delay for smooth input
     
     def cleanup(self):
         pass

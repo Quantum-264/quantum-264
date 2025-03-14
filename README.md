@@ -22,3 +22,12 @@ This is a very early stage project, and I am still in the process of figuring ou
 I would first like to give a shoutout to [Abeisgoat🐐](https://github.com/abeisgoat). Without their work on the PicoVision, I may not have been inspired to start this project. They were also kind enough to provide me with some guidance and permission to use some of their work as inspiration for this project. 
 
 I would also like to give a shoutout to the Pimoroni team for creating the PicoVision. This project would not be possible without their hardware. I would also like to give a shoutout to the Pico-8 team for creating such an awesome fantasy console. I have been inspired by their work, and I hope to create something that is equally as fun to use.
+
+
+
+
+# References
+
+- [PicoVision](https://github.com/pimoroni/picovision) - The PicoVision is a Raspberry Pi Pico based handheld console with a 240x240 LCD screen, 8 buttons, and a 4-way joystick. It is designed to be a platform for creating retro games and applications.
+- [Pico-8](https://www.lexaloffle.com/pico-8.php) - Pico-8 is a fantasy console for making, sharing and playing tiny games and other computer programs. It is inspired by the limitations of 8-bit computers of the 1980s.
+- [Abeisgoat🐐](https://github.com/abeisgoat/) - I didn't want to lean too much into Abe's code, but their approach in SlimeOS probably teaches me more than just muddling through myself. 

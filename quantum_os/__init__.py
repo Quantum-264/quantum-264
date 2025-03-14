@@ -1,6 +1,6 @@
 from picovision import PicoVision, PEN_P5
 from machine import Pin, I2C, UART, SPI
-from quantum_os.display import display, BG_COLOR, TEXT_COLOR
+from quantum_os.display import *
 from quantum_os.memory import get_free_memory
 
 
@@ -20,6 +20,10 @@ import quantum_os.intents as intents
 from quantum_os.intents import *
 
 # from quantum_os.keycode import Keycode as keycode
+
+from quantum_os.keyboard import Keyboard
+
+
 
 TMP_DOWNLOAD_PLAY_APP = "/sd/download_play_app.py"
 
@@ -96,6 +100,8 @@ sd = get_sdcard()
 persist = {}
 os.mount(sd, "/sd")
 
+kbd = Keyboard()
+
 try:
     os.remove(TMP_DOWNLOAD_PLAY_APP)
     print("[qos].temp_file_removed")
@@ -108,6 +114,7 @@ def boot(next_app):
     running_app_instance = None
 
     while True:
+        kbd.update()
         if running_app:
             if not running_app_instance:
                 running_app.setup(display)
@@ -137,18 +144,9 @@ def boot(next_app):
             running_app = next_app()
             
         if is_intent(intent, INTENT_NO_OP):
-            pass
+            display.update()
         
         
-        # if is_intent(intent, INTENT_FLIP_BUFFER):
-        #     display.set_pen(BG_COLOR)
-        #     display.rectangle(0, 0, gfx.dw, 40)
-        #     display.set_pen(TEXT_COLOR)
-        #     display.line(gfx.dw-12, 40, gfx.dw-12-120, 40)
-        #     display.line(0+12, 40, 0+12+120, 40)
-            
-        #     window_title = "SLIMEDECK ZERO"
-            
-        #     display.text(window_title, gfx.dw-12-10, 31, -1, 1, 180)
-        #     display.text(get_free_memory()["P"], 0+12+86, 31, -1, 1, 180)
-        #     display.update()
+        if is_intent(intent, INTENT_FLIP_BUFFER):
+            draw_border()
+            display.update()

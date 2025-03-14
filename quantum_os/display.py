@@ -63,16 +63,19 @@ CURSOR_COLOR = COLORS[25]
 TEXT_COLOR = COLORS[3]
 
 
+def draw_background():
+    """Draw a background color on the screen."""
+    display.set_pen(BG_COLOR)
+    display.rectangle(0, 0, WIDTH, HEIGHT)
+    display.update()
 
 
 def draw_border():
     """Draw a border around the screen."""
-    
     for _ in range(2):
         display.set_pen(BORDER_COLOR)
-        display.rectangle(0, 0, WIDTH, HEIGHT)
-        display.update()
-    for _ in range(2):
-        display.set_pen(BG_COLOR)
-        display.rectangle(BORDER_WIDTH, BORDER_HEIGHT, WIDTH - (BORDER_WIDTH * 2), HEIGHT - (BORDER_HEIGHT * 2))    
+        display.rectangle(0, 0, WIDTH, BORDER_HEIGHT)
+        display.rectangle(0, 0, BORDER_WIDTH, HEIGHT)
+        display.rectangle(0, HEIGHT-BORDER_HEIGHT, WIDTH, BORDER_HEIGHT)
+        display.rectangle(WIDTH-BORDER_WIDTH, 0, BORDER_WIDTH, HEIGHT)
         display.update()
