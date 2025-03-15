@@ -2,11 +2,11 @@ from quantum_os.display import display, COLORS
 from quantum_os.constants import CHAR_WIDTH, LINE_HEIGHT
 
 command_list = [
-    {"command": "clear", "description": "Clear the screen"},
-    {"command": "help", "description": "Show this help message"},
-    {"command": "apps", "description": "List available applications"},
-    {"command": "colors", "description": "Display all colors"},
-    {"command": "mem", "description": "Display memory usage"},
+    {"command": "CLEAR", "description": "Clear the screen"},
+    {"command": "HELP", "description": "Show this help message"},
+    {"command": "APPS", "description": "List available applications"},
+    {"command": "COLORS", "description": "Display all colors"},
+    {"command": "MEM", "description": "Display memory usage"},
 ]
 
 

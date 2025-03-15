@@ -158,6 +158,7 @@ class App:
     ## TODO: Add CommandHandler class
     def handle_command(self):
         """Handle user input and execute commands."""
+        print("Command:", self.command_buffer.strip(), "length", len(self.command_buffer.strip()))
         if self.command_buffer.strip():  # Check if there's a command to execute
             self.command = self.command_buffer.strip()  # Remove leading/trailing spaces
             # for _ in range(2):
@@ -165,9 +166,9 @@ class App:
             #     clear_screen()  # Clear screen before executing command
 
             # Execute command
-            if self.command == "clear":
+            if self.command == "CLEAR":
                 self.clear_screen(False)  # Don't draw prompt after clearing
-            elif self.command == "help":
+            elif self.command == "HELP":
                 for _ in range(2):
                     display.set_pen(COLORS[6])
                     display.text("Available commands:", MARGIN_CURSOR, self.cursor["y"], WIDTH, 2)
@@ -180,7 +181,7 @@ class App:
                         display.text(f"{cmd["command"]} - {cmd["description"]}", MARGIN_CURSOR, self.cursor["y"] + (i * LINE_HEIGHT), WIDTH, 2)
                         display.update()
                 self.move_cursor_down(len(command_list))
-            elif self.command == "apps":
+            elif self.command == "APPS":
                 display.set_pen(COLORS[6])
 
                 display.text("Available applications:", MARGIN_CURSOR, self.cursor["y"], WIDTH, 2)
@@ -189,7 +190,7 @@ class App:
                     display.text(f"{app_index + 1}. {app["title"]}", MARGIN_CURSOR, self.cursor["y"] + app_index * LINE_HEIGHT, WIDTH, 2)
                     display.update()
 
-            elif self.command == "app0":
+            elif self.command == "APP0":
                 self.move_cursor_down()
                 yield quantum_os.INTENT_REPLACE_APP(
                         self.apps[1]
@@ -211,12 +212,11 @@ class App:
                 # for i, app in enumerate(apps):
                 #     display.text(f"{i + 1}. {app["title"]}", MARGIN_CURSOR, self.cursor["y"] + i * LINE_HEIGHT, WIDTH, 2)
                 # display.update()
-            elif self.command == "colors":
+            elif self.command == "COLORS":
                 self.clear_screen(False)
                 show_colors(x=self.cursor["x"], y=self.cursor["y"])
                 self.move_cursor_down()
-            elif self.command == "mem":
-                self.move_cursor_down()
+            elif self.command == "MEM":
                 write_text_double_buffer(f"Free Memory: {get_free_memory()["total"]} KB", COLORS[25], x=self.cursor["x"], y=self.cursor["y"])
                 self.move_cursor_down()
 
@@ -242,6 +242,19 @@ class App:
 
             if active_modifiers or any(pressed_keys):
                 print(f"Modifiers: {active_modifiers}, Keys: {pressed_keys}")
+                
+                if "Enter" in pressed_keys:
+                    yield from self.draw_text("\n")
+                elif "Backspace" in pressed_keys:
+                    yield from self.draw_text("\b")
+                elif "Space" in pressed_keys:
+                    yield from self.draw_text(" ")
+                elif "Tab" in pressed_keys:
+                    yield from self.draw_text("\t")
+                else:                    
+                    yield from self.draw_text(pressed_keys[0])
+                
+                time.sleep(0.1)
             
             
 
