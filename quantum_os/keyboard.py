@@ -34,16 +34,17 @@ class Keyboard:
             # Process key events
             if action:
                 self.pressed_keys.add(keycode)
+                print("Pressed key: ",get_key_name(keycode))
             else:
                 self.pressed_keys.discard(keycode)
+                print("Released key: ", get_key_name(keycode))
 
             action = "Pressed" if action else "Released"
-            print(f"Key {action}: {get_key_name(keycode)}")
 
         elif start_bits == 0b110 and stop_bits == 0b010:
             # Process modifier events
             self.modifier = keycode  # Store new modifier state
-            print(f"Modifier Update: {get_modifier_name(keycode)}")   
+            print("Modifier key: ", get_modifier_name(self.modifier))
 
     def get_keys(self):
         """Returns human-readable key names from currently pressed keycodes."""

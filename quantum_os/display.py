@@ -1,5 +1,6 @@
 from picovision import PicoVision, PEN_P5
 from quantum_os.constants import *
+from quantum_os.memory import get_free_memory
 
 WIDTH, HEIGHT = 640, 480
 display = PicoVision(PEN_P5, WIDTH, HEIGHT)
@@ -67,7 +68,7 @@ def draw_background():
     """Draw a background color on the screen."""
     display.set_pen(BG_COLOR)
     display.rectangle(0, 0, WIDTH, HEIGHT)
-    display.update()
+    # display.update()
 
 
 def draw_border():
@@ -78,4 +79,7 @@ def draw_border():
         display.rectangle(0, 0, BORDER_WIDTH, HEIGHT)
         display.rectangle(0, HEIGHT-BORDER_HEIGHT, WIDTH, BORDER_HEIGHT)
         display.rectangle(WIDTH-BORDER_WIDTH, 0, BORDER_WIDTH, HEIGHT)
-        display.update()
+
+        # display.set_pen(TEXT_COLOR)
+        # display.text(str(round(get_free_memory()["percent"])) + "%", WIDTH - 150, HEIGHT - 30, -1, 2, 0)
+        # display.update()

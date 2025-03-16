@@ -144,9 +144,10 @@ def boot(next_app):
             running_app = next_app()
             
         if is_intent(intent, INTENT_NO_OP):
-            display.update()
+            pass
         
         
         if is_intent(intent, INTENT_FLIP_BUFFER):
             draw_border()
+            
             display.update()

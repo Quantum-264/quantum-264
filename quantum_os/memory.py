@@ -4,7 +4,8 @@ def get_free_memory(full=False):
     F = gc.mem_free()
     A = gc.mem_alloc()
     T = F+A
-    P = 'MEM USAGE {0:.2f}%'.format(100-(F/T*100))
-    return {'total':T,'free':F,'used':A,'percent':P}
+    P = 100-(F/T*100)
+    S = 'MEM USAGE {0:.2f}%'.format(100-(F/T*100))
+    return {'total':T,'free':F,'used':A,'percent':P, 'string':S}
     
 

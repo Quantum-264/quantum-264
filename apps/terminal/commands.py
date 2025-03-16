@@ -1,3 +1,4 @@
+import quantum_os
 from quantum_os.display import display, COLORS
 from quantum_os.constants import CHAR_WIDTH, LINE_HEIGHT
 
@@ -10,10 +11,15 @@ command_list = [
 ]
 
 
+
+
 def show_colors(x, y):
     for i, color in enumerate(COLORS):
-        for _ in range(2):
+        # for _ in range(2):
             display.set_pen(color)
 
             display.rectangle(x + (i *  CHAR_WIDTH), y, CHAR_WIDTH, LINE_HEIGHT)
-            display.update()
+    
+    # display.update()
+
+    quantum_os.INTENT_FLIP_BUFFER
