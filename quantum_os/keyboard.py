@@ -1,5 +1,6 @@
 import quantum_os
 from quantum_os.hid_keycodes import get_key_name, get_modifier_name
+from collections import deque
 
 class Keyboard:
     def __init__(self):
@@ -8,6 +9,7 @@ class Keyboard:
         self.prev_keys = bytearray(7)
         self.pressed_keys = set()
         self.modifier = 0x00
+        self.buffer = bytearray(5)
 
     def update(self):
         """Reads and stores the latest HID report if available."""
@@ -34,10 +36,12 @@ class Keyboard:
             # Process key events
             if action:
                 self.pressed_keys.add(keycode)
-                print("Pressed key: ",get_key_name(keycode))
+                if self.buffer[-1] != keycode:
+                    self.buffer.append(keycode)
+                # print("Pressed key: ",get_key_name(keycode))
             else:
                 self.pressed_keys.discard(keycode)
-                print("Released key: ", get_key_name(keycode))
+                # print("Released key: ", get_key_name(keycode))
 
             action = "Pressed" if action else "Released"
 
@@ -48,11 +52,21 @@ class Keyboard:
 
     def get_keys(self):
         """Returns human-readable key names from currently pressed keycodes."""
-        return [get_key_name(k) for k in self.pressed_keys]
+        shift = self.modifier & 0x02 or self.modifier & 0x20
+        k = [get_key_name(k, shift) for k in self.pressed_keys]
+        self.buffer = bytearray(5)
+        return k
+
 
     def get_modifier(self):
         """Returns a list of active modifier keys."""
         return get_modifier_name(self.modifier)
+    
+    def get_buffer(self):
+        q = [get_key_name(k) for k in self.buffer if k != 0]
+        self.buffer = bytearray(5)
+        return q
+
 
     
     

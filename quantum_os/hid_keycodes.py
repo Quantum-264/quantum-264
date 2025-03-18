@@ -79,9 +79,21 @@ KEYCODES = {
     0xFA: "Media Refresh", 0xFB: "Media Calculator",
 }
 
-def get_key_name(hid_code):
+SHIFT_KEY_MAP = {
+    0x1E: "!", 0x1F: "@", 0x20: "#", 0x21: "$", 0x22: "%", 
+    0x23: "^", 0x24: "&", 0x25: "*", 0x26: "(", 0x27: ")", 
+    0x2D: "_", 0x2E: "+", 0x2F: "{", 0x30: "}", 0x33: ":", 
+    0x34: "\"", 0x35: "~", 0x36: "<", 0x37: ">", 0x38: "?"
+}
+
+
+def get_key_name(hid_code, shift=False):
     """Returns the key name for a given HID keycode."""
-    return KEYCODES.get(hid_code, f"Unknown(0x{hid_code:02X})")
+    if shift and hid_code in SHIFT_KEY_MAP:
+        return SHIFT_KEY_MAP[hid_code]# .get(hid_code,"Unknown(0x{hid_code:02X})")
+    else:
+        return KEYCODES.get(hid_code, f"Unknown(0x{hid_code:02X})")
+
 
 def get_modifier_name(modifier_byte):
     """Returns a list of modifier key names from a modifier byte."""
