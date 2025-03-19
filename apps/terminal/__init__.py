@@ -8,6 +8,7 @@ from quantum_os.utils import write_text_double_buffer
 
 class App:
     def setup(self, display):
+        from apps.terminal.command_handler import CommandHandler
         self.display = display
 
         self.do_get_apps()
@@ -15,9 +16,6 @@ class App:
         self.uart = quantum_os.get_expansion_uart()
 
         self.cursor = {"x": DEFAULT_CURSOR_X, "y": DEFAULT_CURSOR_Y}
-        self.command_buffer = ""
-        self.command = ""
-        self.command_history = []
         self.cursor_visible = True
         self.blink_interval = 500
         self.blinking_cursor = True
@@ -28,14 +26,8 @@ class App:
         self.last_key = None
         self.last_key_timer = time.ticks_ms()
         self.debounce_delay = 100
-
-        self.commands = {
-            "CLR": {"description": "Clear the screen", "handler": self.command_clear},
-            "HELP": {"description": "Show this help message", "handler": self.command_help},
-            "APPS": {"description": "List available applications", "handler": self.command_apps},
-            "COLORS": {"description": "Display all colors", "handler": self.command_colors},
-            "MEM": {"description": "Display memory usage", "handler": self.command_mem},
-        }
+        self.command_handler = CommandHandler(self)
+        self.load_app = False
 
 
     def do_get_apps(self):
@@ -62,24 +54,24 @@ class App:
         self.cursor["y"] += LINE_HEIGHT * lines
 
 
-    def draw_colors(self, o=70):
+    def draw_colors(self, o=85):
         for i, color in enumerate(COLORS):
             display.set_pen(color)
-            display.rectangle(self.cursor["x"] + o + (i *  CHAR_WIDTH), self.cursor["y"], CHAR_WIDTH, LINE_HEIGHT)
+            display.rectangle(self.cursor["x"] + o + (i *  CHAR_WIDTH), self.cursor["y"], CHAR_WIDTH, LINE_HEIGHT-10)
 
 
     def create_header(self):
         """Add the header text to the text buffer."""
-        self.add_to_buffer({"text": "Quantum-264 Terminal", "o": 150, "c": COLORS[19]})
-        self.add_to_buffer({"text": f"Free Memory: {get_free_memory()["free"]} KB", "o": 150, "c": COLORS[25]})
+        self.add_to_buffer({"text": "Quantum-264 Terminal!", "o": 165, "c": COLORS[19]})
+        self.add_to_buffer({"text": f"Free Memory: {get_free_memory()["free"]} KB", "o": 165, "c": COLORS[25]})
         self.add_to_buffer({"cmd": self.draw_colors})
 
 
     def draw_prompt(self):
         """Draws the command prompt '>' at the start of the line."""
         display.set_pen(TEXT_COLOR)
-        display.text(">"+self.command_buffer, self.cursor["x"] - 10, self.cursor["y"], WIDTH, 2)
-        self.cursor["x"] = DEFAULT_CURSOR_X + 10 + (len(self.command_buffer) - 1) * CHAR_WIDTH 
+        display.text(">"+self.command_handler.buffer, self.cursor["x"] - 10, self.cursor["y"], WIDTH, 2)
+        self.cursor["x"] = DEFAULT_CURSOR_X + 10 + (len(self.command_handler.buffer) - 1) * CHAR_WIDTH 
 
 
     def draw_cursor(self, force=False):
@@ -94,62 +86,6 @@ class App:
         display.set_pen(self.cursor_color)
         display.rectangle(self.cursor["x"], self.cursor["y"], CHAR_WIDTH, LINE_HEIGHT - 5)
         display.update()
-
-
-    def command_unknown(self):
-        """Display an unknown command message."""
-        self.add_to_buffer({"text": f"Unknown command: {self.command}", "c": COLORS[2]})
-
-    def command_apps(self):
-        """Display a list of available applications."""
-        self.add_to_buffer({"text": "Available applications:", "c": COLORS[6]})
-        for app_index, app in enumerate(self.apps):
-            self.add_to_buffer({"text": f"{app_index + 1}. {app["title"]}", "c": COLORS[4]})
-
-    def command_clear(self):
-        """Clear the text buffer."""
-        self.line_buffer = []
-
-    def command_help(self):
-        """Display a list of available commands."""
-        self.add_to_buffer({"text": "Available commands:", "c": COLORS[6]})
-        for key, value in self.commands.items():
-            self.add_to_buffer({"text": f"{key} - {value["description"]}", "c": COLORS[4]})
-
-    def command_colors(self):
-        """Display all colors."""
-        self.add_to_buffer({"cmd": self.draw_colors})
-
-    def command_mem(self):
-        """Display memory usage."""
-        self.add_to_buffer({"text": f"Free Memory: {get_free_memory()["free"]} KB", "c": COLORS[25]})
-
-    def command_load_app(self):
-        """Load an application."""
-        yield quantum_os.INTENT_REPLACE_APP(
-            self.apps[self.selected_app]
-        )
-    
-
-    ## TODO: Add CommandHandler class
-    def handle_command(self):
-        """Handle user input and execute commands."""
-        # Remove leading/trailing spaces
-        self.command = self.command_buffer.strip()
-        # Clear command buffer
-        self.command_buffer = ""  
-        # Add command to text buffer
-        self.add_to_buffer({"text": f">{self.command}", "c": COLORS[3], "o": -10})
-        try:
-            # Execute command
-            self.commands[self.command]["handler"]()
-        except KeyError:
-            # Handle unknown command
-            self.command_unknown()
-    
-        display.remove_clip()
-        yield quantum_os.INTENT_NO_OP
-
 
     def draw_text_buffer(self):
         for text in self.line_buffer:
@@ -171,18 +107,15 @@ class App:
 
     def draw_char(self, char):
         """Draw a single character to the screen."""
-        
-        # if char != self.last_key or (time.ticks_ms() - self.last_key_timer) > self.debounce_delay:
         display.set_clip(self.cursor["x"], self.cursor["y"], CHAR_WIDTH, LINE_HEIGHT - 5)
         self.erase_cursor()
         write_text_double_buffer(char, TEXT_COLOR, self.cursor["x"], self.cursor["y"])
         self.cursor["x"] += CHAR_WIDTH
         display.update()
 
-        self.command_buffer += char
+        self.command_handler.buffer += char
         yield quantum_os.INTENT_NO_OP
         
-
     def erase_char(self):
         """Erase the last character from the screen."""
         self.cursor["x"] -= CHAR_WIDTH
@@ -191,9 +124,8 @@ class App:
 
     def backspace(self):
         """Handle the backspace key."""
-        # if "Backspace" != self.last_key or (time.ticks_ms() - self.last_key_timer) > self.debounce_delay/2:
-        if len(self.command_buffer) > 0:
-            self.command_buffer = self.command_buffer[:-1]
+        if len(self.command_handler.buffer) > 0:
+            self.command_handler.buffer = self.command_handler.buffer[:-1]
             self.erase_cursor()
             self.erase_char()
 
@@ -212,6 +144,7 @@ class App:
 
     def process_keys(self):
         while True:
+            
             pressed_keys = quantum_os.kbd.get_keys()
             active_modifiers = quantum_os.kbd.get_modifier()
             display.set_clip(self.cursor["x"], self.cursor["y"], CHAR_WIDTH, LINE_HEIGHT - 5)
@@ -228,7 +161,7 @@ class App:
 
             elif any(pressed_keys):
                 if "Enter" in pressed_keys:
-                    yield from self.debounce("Enter", self.handle_command, self.debounce_delay*2)
+                    yield from self.debounce("Enter", self.command_handler.handle_command, self.debounce_delay*2)
                     return
                 elif "Backspace" in pressed_keys:
                     yield from self.debounce("Backspace", self.backspace, self.debounce_delay/2)
@@ -252,7 +185,7 @@ class App:
     def run(self):
         self.create_header()
         while True:
-            
+            self.load_app = False
             for i in range(2):
                 """
                 We draw double buffer to ensure the screen is updated in both buffers.
@@ -268,7 +201,11 @@ class App:
             
             # self.draw_cursor()
             yield from self.process_keys()
-
+            if self.load_app:
+                yield quantum_os.INTENT_REPLACE_APP(
+                    self.apps[self.selected_app]
+                )
+                break
             self.reset_cursor_position()
             # time.sleep(0.1)
             

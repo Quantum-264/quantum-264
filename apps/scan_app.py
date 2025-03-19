@@ -50,8 +50,13 @@ class App:
             self.devices[f'{device["x"]}x{device["y"]}'] = device
         
     def run(self):    
-        print("[QOS].i2c_scan_app")
+        print("[QOS].scan_app")
         print(self.devices)
+        for _ in range(2):
+            display.clear()
+            display.set_pen(BG_COLOR)
+            display.rectangle(0, 0, WIDTH, HEIGHT)
+            display.update()
         while True:            
             if self.cursor["x"] < 0:
                 self.cursor["x"] = 15
@@ -110,6 +115,8 @@ class App:
                     
             self.display.line(DEFAULT_CURSOR_X, HEIGHT-BORDER_HEIGHT-y_offset-10, WIDTH-BORDER_WIDTH-x_offset, HEIGHT-BORDER_HEIGHT-y_offset-10)
             self.display.text(selected_device, DEFAULT_CURSOR_X, HEIGHT-BORDER_HEIGHT-y_offset, -1, 2, 0)
+            self.display.set_pen(COLORS[6])
+            self.display.text("Press 'q' to exit", WIDTH - 200, HEIGHT-BORDER_HEIGHT-y_offset, -1, 2, 0)
             
             yield quantum_os.INTENT_FLIP_BUFFER
             while True:
@@ -118,8 +125,6 @@ class App:
                 pressed_keys = quantum_os.kbd.get_keys()
                 active_modifiers = quantum_os.kbd.get_modifier()
 
-                if active_modifiers or any(pressed_keys):
-                    print(f"Modifiers: {active_modifiers}, Keys: {pressed_keys}")
 
                 if "Up Arrow" in pressed_keys:
                     self.cursor["y"] -= 1
@@ -136,8 +141,8 @@ class App:
                 if "Enter" in pressed_keys:
                     print("Enter")
                     break
-                if "Q" in pressed_keys:
-                    print("Q")
+                if "q" in pressed_keys:
+                    print("q")
                     yield quantum_os.INTENT_KILL_APP
                     break
 
