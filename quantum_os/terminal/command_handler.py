@@ -21,10 +21,10 @@ class CommandHandler:
         self.commands = {
             "clr": {"aliases": ["clr", "-c"], "args": [], "description": "Clear the screen", "handler": self.command_clear},
             "help": {"aliases": ["help", "-h"], "args": [], "description": "Show this help message", "handler": self.command_help},
-            "apps": {"aliases": ["apps", "-a"], "args": [], "description": "List available applications", "handler": self.command_apps},
+            # "apps": {"aliases": ["apps", "-a"], "args": [], "description": "List available applications", "handler": self.command_apps},
             "colors": {"aliases": ["colors", "-col"], "args": [], "description": "Display all colors", "handler": self.command_colors},
             "mem": {"aliases": ["mem", "-m" ], "args": [], "description": "Display memory usage", "handler": self.command_mem},
-            "load": {"aliases": ["load", "-l"], "args": ["index"], "description": "Load an application", "handler": self.command_load},
+            "load": {"aliases": ["load", "-l"], "args": ["filename"], "description": "Load an application", "handler": self.command_load},
             "reset": {"aliases": ["reset", "-r"], "args": [], "description": "Reset the device", "handler": self.command_reset},
             "ls": {"aliases": ["ls", "-ls"], "args": [], "description": "List files", "handler": self.command_ls},
             "cd": {"aliases": ["cd", "-cd"], "args": ["directory"], "description": "Change directory", "handler": self.command_cd},
@@ -33,6 +33,8 @@ class CommandHandler:
             "rmdir": {"aliases": ["rmdir", "-rmdir"], "args": ["directory"], "description": "Remove directory", "handler": self.command_rmdir},
             "touch": {"aliases": ["touch", "-touch"], "args": ["file"], "description": "Create file", "handler": self.command_touch},
             "rm": {"aliases": ["rm", "-rm"], "args": ["file"], "description": "Remove file", "handler": self.command_rm},
+            "run": {"aliases": ["run", "-run"], "args": ["file"], "description": "Run file", "handler": self.command_run},
+            "edit": {"aliases": ["edit", "-edit"], "args": ["file"], "description": "Edit file", "handler": self.command_edit},
         }
 
 
@@ -122,14 +124,6 @@ class CommandHandler:
         yield quantum_os.INTENT_NO_OP
 
 
-    def command_apps(self):
-        """Display a list of available applications."""
-        self.terminal.add_to_buffer({"text": "Available applications:", "c": COLORS[6]})
-        for app_index, app in enumerate(self.terminal.apps):
-            self.terminal.add_to_buffer({"text": f"{app_index}. {app["title"]}", "c": COLORS[4]})
-        yield quantum_os.INTENT_NO_OP
-
-
     def command_clear(self):
         """Clear the text buffer."""
         self.terminal.line_buffer = []
@@ -157,14 +151,13 @@ class CommandHandler:
             yield from self.command_invalid_args()
             return
         
-        app_index = args[0]
-        if app_index is None:
+        filename = args[0]
+        if filename is None:
             yield from self.command_invalid_args()
             return
         
-        app_index = int(app_index)
-        self.terminal.load_app = True
-        self.terminal.selected_app = app_index
+        quantum_os.environment["selected_app"] = {"filename": filename, "path": os.getcwd()}
+        self.terminal.add_to_buffer({"text": f"Loaded: {filename} from {os.getcwd()}", "c": COLORS[2]})
         yield quantum_os.INTENT_NO_OP
 
 
@@ -294,7 +287,18 @@ class CommandHandler:
             self.terminal.add_to_buffer({"text": f"Error: {e}", "c": COLORS[2]})
         yield quantum_os.INTENT_NO_OP
 
-    
+
+    def command_run(self):
+        quantum_os.environment["load_app"] = True
+        yield quantum_os.INTENT_NO_OP
+
+    def command_edit(self):
+        """Flag the terminal to load an application."""
+        if quantum_os.environment["selected_app"] != "":
+            quantum_os.environment["edit_file"] = True
+            yield quantum_os.INTENT_NO_OP
+        else:
+            self.terminal.add_to_buffer({"text": f"No file loaded", "c": COLORS[2]})
 
 
     

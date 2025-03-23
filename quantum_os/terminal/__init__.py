@@ -13,7 +13,7 @@ class App:
         from quantum_os.terminal.command_handler import CommandHandler
         self.display = display
 
-        self.do_get_apps()
+        # self.do_get_apps()
 
         self.uart = quantum_os.get_expansion_uart()
 
@@ -29,7 +29,8 @@ class App:
         self.last_key_timer = time.ticks_ms()
         self.debounce_delay = 100
         self.command_handler = CommandHandler(self)
-        self.load_app = False
+        # self.load_app = False
+        
 
 
     def do_get_apps(self):
@@ -195,7 +196,9 @@ class App:
         while True:
             print("Running terminal")
 
-            self.load_app = False
+            quantum_os.environment["edit_file"] = False
+            quantum_os.environment["load_app"] = False
+        
             for i in range(2):
                 """
                 We draw double buffer to ensure the screen is updated in both buffers.
@@ -210,16 +213,19 @@ class App:
                 print("Drawing text buffer")
                 yield quantum_os.INTENT_FLIP_BUFFER
             
-            # self.draw_cursor()
             yield quantum_os.INTENT_FLIP_BUFFER
             yield from self.process_keys()
-            if self.load_app:
+            if quantum_os.environment["load_app"]:
+                
                 yield quantum_os.INTENT_REPLACE_APP(
-                    self.apps[self.selected_app]
+                    quantum_os.environment["selected_app"]
                 )
                 break
+            elif quantum_os.environment["edit_file"]:
+                yield quantum_os.INTENT_REPLACE_APP(
+                    quantum_os.environment["edit_app"]
+                )
             self.reset_cursor_position()
-            # time.sleep(0.1)
             
 
     def cleanup(self):

@@ -2,6 +2,7 @@ from picovision import PicoVision, PEN_P5
 from machine import Pin, I2C, UART, SPI
 from quantum_os.display import *
 from quantum_os.memory import get_free_memory
+from quantum_os.utils import write_text_double_buffer
 
 import time
 import gc
@@ -100,7 +101,17 @@ def get_applications() -> list[dict[str, str, str]]:
     return sorted(applications, key=lambda x: x["name"])
 
 sd = get_sdcard()
-persist = {}
+
+environment: dict = {
+    "edit_app": {
+        "filename": "text_edit",
+        "path": "/apps"
+    },
+    "load_app": False,
+    "edit_file": False,
+    "selected_app": ""
+}
+
 os.mount(sd, "/sd")
 
 kbd = Keyboard()
@@ -135,16 +146,33 @@ def boot(next_app):
             next_app = terminal.App
 
             if len(intent) == 2:
-                print("FILE:", intent[1]["file"])
-                mod = intent[1]["file"]
-                app_name = mod.split(".")[-1]
+                file = intent[1]
+                try:
+                    filename = file["filename"]
 
-                imp = __import__(mod)
+                    if filename.endswith(".py"):
+                        filename = filename[:-3]
 
-                app_to_run = getattr(imp, app_name, None) 
-                next_app = app_to_run.App
-                display.update()
+                    path = file["path"]
+
+                    if path.startswith("/"):
+                        path = path[1:]
+
+                    path.replace("/", ".")
+
+                    mod = f"{path}.{filename}"
+                    # print("MOD", mod)
+                    # print("APP", filename)
+                    # print("CWD", os.getcwd())
+                    imp = __import__(mod)
+
+                    app_to_run = getattr(imp, filename, None) 
+                    next_app = app_to_run.App
+                    display.update()
+                except:
+                    pass
             running_app = next_app()
+        
 
             
         if is_intent(intent, INTENT_NO_OP):
