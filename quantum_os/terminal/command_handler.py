@@ -15,7 +15,7 @@ class CommandHandler:
         self.buffer = ""
         self.command = ""
         self.history = []
-        self.root_dir = "./apps"
+        self.root_dir = "/apps"
         os.chdir(self.root_dir)
         
         self.commands = {
