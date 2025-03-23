@@ -9,7 +9,7 @@ import os
 import sdcard
 
 # import quantum_os.i2c_keyboard
-import apps.terminal as terminal
+import quantum_os.terminal as terminal
 
 # from quantum_os.graphics import *
 # from quantum_os.expansion import *

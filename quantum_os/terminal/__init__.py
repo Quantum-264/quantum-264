@@ -6,9 +6,11 @@ from quantum_os.memory import get_free_memory
 from quantum_os.fs import get_applications
 from quantum_os.utils import write_text_double_buffer
 
+
 class App:
+    print("[QOS].terminal")
     def setup(self, display):
-        from apps.terminal.command_handler import CommandHandler
+        from quantum_os.terminal.command_handler import CommandHandler
         self.display = display
 
         self.do_get_apps()
@@ -162,6 +164,7 @@ class App:
             elif any(pressed_keys):
                 if "Enter" in pressed_keys:
                     yield from self.debounce("Enter", self.command_handler.handle_command, self.debounce_delay*2)
+                    print("Hit Enter")
                     return
                 elif "Backspace" in pressed_keys:
                     yield from self.debounce("Backspace", self.backspace, self.debounce_delay/2)
@@ -183,8 +186,15 @@ class App:
 
 
     def run(self):
+        set_border_color(BORDER_COLOR)
+        display.set_pen(BG_COLOR)
+        display.clear()
+        display.update()
+        print("Creating header")
         self.create_header()
         while True:
+            print("Running terminal")
+
             self.load_app = False
             for i in range(2):
                 """
@@ -197,9 +207,11 @@ class App:
                 self.draw_prompt()
                 if i == 0:
                     self.reset_cursor_position()
+                print("Drawing text buffer")
                 yield quantum_os.INTENT_FLIP_BUFFER
             
             # self.draw_cursor()
+            yield quantum_os.INTENT_FLIP_BUFFER
             yield from self.process_keys()
             if self.load_app:
                 yield quantum_os.INTENT_REPLACE_APP(
