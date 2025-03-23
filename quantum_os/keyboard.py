@@ -1,6 +1,5 @@
 import quantum_os
 from quantum_os.hid_keycodes import get_key_name, get_modifier_name
-from collections import deque
 
 class Keyboard:
     def __init__(self):

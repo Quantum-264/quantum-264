@@ -3,14 +3,13 @@ from machine import Pin, I2C, UART, SPI
 from quantum_os.display import *
 from quantum_os.memory import get_free_memory
 
-
 import time
 import gc
 import os
 import sdcard
 
 # import quantum_os.i2c_keyboard
-import apps.terminal as terminal
+import quantum_os.terminal as terminal
 
 # from quantum_os.graphics import *
 # from quantum_os.expansion import *
@@ -109,7 +108,7 @@ except:
     print("[qos].temp_file_missing")
 
 def boot(next_app):
-            
+    display.set_font("bitmap8")
     running_app = next_app()
     running_app_instance = None
 
@@ -130,18 +129,39 @@ def boot(next_app):
             gc.collect()
             
             next_app = terminal.App
+
             if len(intent) == 2:
-                # imp = importlib.import_module("apps.scan_app")
-                # print("apps.scan_app", imp)
-                imp = __import__("apps.scan_app")  # Import the top-level 'apps' module
-                scan_app = getattr(imp, "scan_app", None)  # Retrieve 'scan_app' submodule
-                print("scan_app", scan_app)
+                print("FILE:", intent[1]["file"])
+                mod = intent[1]["file"]
+                app_name = mod.split(".")[-1]
 
-                next_app = scan_app.App
+                imp = __import__(mod)
 
-                # next_app = imp.App
-                # next_app = __import__(intent[1]["file"], fromlist=["App"]).App
+                app_to_run = getattr(imp, app_name, None) 
+                next_app = app_to_run.App
+                display.update()
             running_app = next_app()
+
+
+
+
+
+            # if len(intent) == 2:
+            #     imp = importlib.import_module("apps.scan_app")
+            #     # print("apps.scan_app", imp)
+
+
+            #     # imp = __import__("apps.scan_app")  # Import the top-level 'apps' module
+            #     # scan_app = getattr(imp, "scan_app", None)  # Retrieve 'scan_app' submodule
+            #     # print("scan_app", scan_app)
+
+            #     # next_app = scan_app.App
+
+
+
+            #     next_app = imp.App
+            #     next_app = __import__(intent[1]["file"], fromlist=["App"]).App
+            # running_app = next_app()
             
         if is_intent(intent, INTENT_NO_OP):
             pass

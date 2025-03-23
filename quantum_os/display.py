@@ -71,6 +71,12 @@ def draw_background():
     # display.update()
 
 
+def set_border_color(index):
+    """Update BORDER_COLOR dynamically"""
+    global BORDER_COLOR
+    BORDER_COLOR = COLORS[index]
+
+
 def draw_border():
     """Draw a border around the screen."""
     for _ in range(2):

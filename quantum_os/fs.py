@@ -5,7 +5,7 @@ def get_applications() -> list[dict[str, str, str]]:
     applications = []
 
     for file in listdir("apps"):
-        print(file[:-3])
+        # print(file[:-3])
         if file.endswith("app.py") and file not in ("main.py", "secrets.py"):
             # print(f"App: {file}")
             # convert the filename from "something_or_other.py" to "Something Or Other"
