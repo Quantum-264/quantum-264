@@ -1,8 +1,5 @@
 # Quantum 264
 
-# EPILEPSY WARNING!
-Running command `app0` will 
-
 This is a retro 'home computer' fantasy console, inspired by the 8-bit home computers of the 1980s. This project will be heavily inspired by the Commodore 64 as well as the Pico-8 fantasy console. The Commodore 64 was a popular home computer in the 1980s, and the Pico-8 is a modern fantasy console that is inspired by the limitations of the 8-bit era.
 
 I've always been fascinated by the 8-bit era of computing, and I've always wanted to create my own retro home computer. This project aims to create a fantasy console, but instead of writing a whole new emulator/engine, the limitations of the console will be enforced through the use of the Pimoroni PicoVision. This will put real hardware limitations on the console, and will make it feel more like a real 8-bit home computer. It also have extremely limited resources, which will force me to be creative with my programming. What I like about the PicoVision is that it can be programmed in MicroPython, which will provide that 'BASIC' interpreted language feel that was common in the 8-bit era, but with the added benefit of being able to use modern programming techniques.
