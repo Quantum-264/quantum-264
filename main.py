@@ -14,28 +14,28 @@ except Exception as e:
     sys.print_exception(e, buf)
     traceback_text = buf.getvalue()
 
-    # log to file
-    with open("sd/error.log", "w") as f:
-        f.write(traceback_text)
+    # # # log to file
+    # with open("error.log", "w") as f:
+    #     f.write(traceback_text)
 
     # Clear screen
     for _ in range(2):
         display.clear()
-        display.set_pen(BG_COLOR)
+        display.set_pen(COLORS[22])
         display.rectangle(0, 0, WIDTH, HEIGHT)
         display.update()
 
     # Display error header
-    write_text_double_buffer("ERROR", COLORS[4], y=DEFAULT_CURSOR_Y)
-
+    write_text_double_buffer("Runtime Error", COLORS[6], y=DEFAULT_CURSOR_Y, scale=2)
+    line_height = int(LINE_HEIGHT / 1.8)
     # Display traceback
     lines = traceback_text.splitlines()
-    y = DEFAULT_CURSOR_Y + LINE_HEIGHT
+    y = DEFAULT_CURSOR_Y + LINE_HEIGHT 
 
     for line in lines:
-        write_text_double_buffer(line, TEXT_COLOR, y=y)
-        y += LINE_HEIGHT
-        if y + LINE_HEIGHT >= HEIGHT:
+        write_text_double_buffer(line, TEXT_COLOR, y=y, scale=1)
+        y += line_height
+        if y + line_height >= HEIGHT:
             # If we run out of space, stop writing
             # Optional: clear + page forward or scroll
             break
