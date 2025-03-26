@@ -4,7 +4,6 @@ from quantum_os.constants import *
 from quantum_os.display import *
 from quantum_os.memory import get_free_memory
 from quantum_os.fs import get_applications
-from quantum_os.utils import write_text_double_buffer
 
 
 BORDER_COLOR = COLORS[4]
@@ -207,7 +206,6 @@ class App:
         print("[QOS].text_edit_app")
         self.line_buffer.append("")
         while True:
-            yield quantum_os.INTENT_NO_OP
             self.quit_app = False
             for i in range(2):
                 """
@@ -230,6 +228,7 @@ class App:
                 yield quantum_os.INTENT_KILL_APP
                 break
             self.reset_cursor_position()
+            yield quantum_os.INTENT_NO_OP
             # time.sleep(0.1)
             
 

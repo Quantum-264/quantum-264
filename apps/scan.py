@@ -9,7 +9,6 @@ app["icon"]="0000000000000000000100000000100000101000000101000010010000100100010
 # https://github.com/pimoroni/picovision
 #
 
-import time
 import quantum_os
 from quantum_os.display import *
 
@@ -53,10 +52,10 @@ class App:
         print("[QOS].scan_app")
         print(self.devices)
         for _ in range(2):
-            display.clear()
-            display.set_pen(BG_COLOR)
-            display.rectangle(0, 0, WIDTH, HEIGHT)
-            display.update()
+            self.display.clear()
+            self.display.set_pen(BG_COLOR)
+            self.display.rectangle(0, 0, WIDTH, HEIGHT)
+            self.display.update()
         while True:            
             if self.cursor["x"] < 0:
                 self.cursor["x"] = 15

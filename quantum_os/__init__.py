@@ -1,10 +1,6 @@
 from picovision import PicoVision, PEN_P5
 from machine import Pin, I2C, UART, SPI
 from quantum_os.display import *
-from quantum_os.memory import get_free_memory
-from quantum_os.utils import write_text_double_buffer
-
-import time
 import gc
 import os
 import sdcard

@@ -14,9 +14,9 @@ except Exception as e:
     sys.print_exception(e, buf)
     traceback_text = buf.getvalue()
 
-    # # # log to file
-    # with open("error.log", "w") as f:
-    #     f.write(traceback_text)
+    # # log to file
+    with open("../error.log", "w") as f:
+        f.write(traceback_text)
 
     # Clear screen
     for _ in range(2):

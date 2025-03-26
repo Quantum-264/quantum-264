@@ -1,5 +1,7 @@
 import quantum_os
+import time
 from quantum_os.hid_keycodes import get_key_name, get_modifier_name
+
 
 class Keyboard:
     def __init__(self):
@@ -9,6 +11,10 @@ class Keyboard:
         self.pressed_keys = set()
         self.modifier = 0x00
         self.buffer = bytearray(5)
+        self.last_key = None
+        self.last_key_timer = time.ticks_ms()
+        self.debounce_delay = 100
+
 
     def update(self):
         """Reads and stores the latest HID report if available."""
@@ -65,6 +71,16 @@ class Keyboard:
         q = [get_key_name(k) for k in self.buffer if k != 0]
         self.buffer = bytearray(5)
         return q
+    
+
+    def debounce(self, key, callback, delay_multiplier=1):
+        """Debounce a callback function."""
+        if key != self.last_key or (time.ticks_ms() - self.last_key_timer) > (self.debounce_delay * delay_multiplier):
+            yield from callback()
+            self.last_key_timer = time.ticks_ms()
+            self.last_key = key
+
+        yield quantum_os.INTENT_NO_OP
 
 
     

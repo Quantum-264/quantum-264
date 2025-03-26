@@ -1,6 +1,6 @@
 from picovision import PicoVision, PEN_P5
+import quantum_os
 from quantum_os.constants import *
-from quantum_os.memory import get_free_memory
 
 WIDTH, HEIGHT = 640, 480
 display = PicoVision(PEN_P5, WIDTH, HEIGHT)
@@ -64,6 +64,13 @@ CURSOR_COLOR = COLORS[25]
 TEXT_COLOR = COLORS[3]
 
 
+def clear_screen():
+    """Clear the screen and reset cursor."""
+    display.set_pen(BG_COLOR)
+    display.rectangle(0, 0, WIDTH, HEIGHT)
+    yield quantum_os.INTENT_NO_OP
+
+
 def draw_background():
     """Draw a background color on the screen."""
     display.set_pen(BG_COLOR)
@@ -86,6 +93,30 @@ def draw_border():
         display.rectangle(0, HEIGHT-BORDER_HEIGHT, WIDTH, BORDER_HEIGHT)
         display.rectangle(WIDTH-BORDER_WIDTH, 0, BORDER_WIDTH, HEIGHT)
 
-        # display.set_pen(TEXT_COLOR)
-        # display.text(str(round(get_free_memory()["percent"])) + "%", WIDTH - 150, HEIGHT - 30, -1, 2, 0)
-        # display.update()
+
+def write_text_double_buffer(text, color, x=DEFAULT_CURSOR_X, y=DEFAULT_CURSOR_Y, scale=2):
+    """Write text to the screen using double buffering."""
+    for _ in range(2):
+        display.set_pen(color)
+        display.text(text, x, y, WIDTH, scale)
+        display.update()
+
+
+def draw_char(char, cursor):
+    """Draw a single character to the screen."""
+    display.set_clip(cursor.x, cursor.y, CHAR_WIDTH, LINE_HEIGHT - 5)
+    cursor.erase()
+    write_text_double_buffer(char, TEXT_COLOR, cursor.x, cursor.y)
+    
+    cursor.x += (CHAR_WIDTH*len(char))
+    display.update()
+    
+    yield quantum_os.INTENT_NO_OP
+    
+
+
+def erase_char(cursor):
+    """Erase the last character from the screen."""
+    cursor.x -= CHAR_WIDTH
+    write_text_double_buffer("\b", BG_COLOR, cursor.x, cursor.y)
+    display.update()
